@@ -271,6 +271,9 @@
         <div class="header">
             <h1>🔄 氣泡排序法</h1>
             <p>Bubble Sort - 深入理解與可視化</p>
+            <div style="margin-top: 12px;">
+                <a href="selection.html" target="_blank" style="background: #fff; color: #4b0082; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-weight: bold;">🟩 打開選擇排序法分頁</a>
+            </div>
         </div>
 
         <div class="content">
@@ -452,6 +455,47 @@ console.log("排序後:", sorted);
                 </div>
             </div>
 
+            <!-- 選擇排序法 -->
+            <div class="section" id="selection-section">
+                <h2>🟩 選擇排序法（Selection Sort）</h2>
+                <div class="principle">
+                    <p><strong>選擇排序</strong>是每次從未排序部分選取最小（或最大）元素，放到已排序部分末尾。</p>
+                    <p>時間複雜度：O(n²)，空間複雜度：O(1)，不穩定（等值元素次序可能改變）。</p>
+                </div>
+
+                <h3>演算法步驟：</h3>
+                <div class="process">
+                    <ol>
+                        <li>從當前位置 i 開始，尋找最小值索引 minIndex。</li>
+                        <li>遍歷 i+1 到 n-1 的元素，更新 minIndex。</li>
+                        <li>若 minIndex != i，交換位置 i 與 minIndex 元素。</li>
+                        <li>i 前部分即為已排序；i 後部分未排序。</li>
+                        <li>重覆直到整個陣列排序完成。</li>
+                    </ol>
+                </div>
+
+                <h3>代碼實現</h3>
+                <div class="code-block">
+                    <code>function selectionSort(arr) {
+    const n = arr.length;
+    for (let i = 0; i < n - 1; i++) {
+        let minIndex = i;
+        for (let j = i + 1; j < n; j++) {
+            if (arr[j] < arr[minIndex]) {
+                minIndex = j;
+            }
+        }
+        if (minIndex !== i) {
+            let temp = arr[i];
+            arr[i] = arr[minIndex];
+            arr[minIndex] = temp;
+        }
+    }
+    return arr;
+}</code>
+                </div>
+            </div>
+
             <!-- 互動可視化 -->
             <div class="section">
                 <h2>🎨 互動可視化演示</h2>
@@ -459,6 +503,10 @@ console.log("排序後:", sorted);
                     <h3 style="margin-bottom: 20px; color: #333;">按下按鈕開始排序演示</h3>
                     <div class="controls">
                         <button onclick="generateArray()">生成新陣列</button>
+                        <select id="algorithmSelect" style="padding: 10px 15px; border-radius: 5px; border: 1px solid #ccc; color: #333;">
+                            <option value="bubble">氣泡排序</option>
+                            <option value="selection">選擇排序</option>
+                        </select>
                         <button onclick="startSort()">開始排序</button>
                         <button onclick="resetVisualization()">重置</button>
                     </div>
@@ -652,10 +700,57 @@ console.log("排序後:", sorted);
             isSorting = false;
         }
 
+        // 選擇排序可視化（Selection Sort）
+        async function selectionSort() {
+            const n = array.length;
+            comparisons = 0;
+            swaps = 0;
+            isSorting = true;
+
+            for (let i = 0; i < n - 1; i++) {
+                let minIndex = i;
+                for (let j = i + 1; j < n; j++) {
+                    renderArray(j, 'comparing');
+                    document.getElementById('status').textContent = `正在比較第 ${minIndex + 1} 和 ${j + 1} 個元素...`;
+                    document.getElementById('stats').textContent = `比較次數: ${comparisons} | 交換次數: ${swaps}`;
+
+                    comparisons++;
+                    await sleep(getDelay());
+
+                    if (array[j] < array[minIndex]) {
+                        minIndex = j;
+                    }
+                }
+
+                if (minIndex !== i) {
+                    renderArray(minIndex, 'swapping');
+                    document.getElementById('status').textContent = `交換第 ${i + 1} 與第 ${minIndex + 1} 個元素...`;
+                    await sleep(getDelay());
+
+                    let temp = array[i];
+                    array[i] = array[minIndex];
+                    array[minIndex] = temp;
+
+                    swaps++;
+                }
+
+                renderArray();
+            }
+
+            document.getElementById('status').textContent = '✓ 選擇排序完成！';
+            document.getElementById('stats').textContent = `總比較次數: ${comparisons} | 總交換次數: ${swaps}`;
+            isSorting = false;
+        }
+
         // 開始排序
         function startSort() {
             if (array.length === 0 || isSorting) return;
-            bubbleSort();
+            const algo = document.getElementById('algorithmSelect').value;
+            if (algo === 'selection') {
+                selectionSort();
+            } else {
+                bubbleSort();
+            }
         }
 
         // 重置可視化
