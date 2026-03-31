@@ -13,81 +13,143 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(-45deg, #F5A5A5, #E8B4D4, #B8D8E8, #B8E8D8);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow: auto;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.15) 2px, transparent 2px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 25px 25px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         .container {
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            padding: 60px 40px;
-            max-width: 600px;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            padding: 80px 50px;
+            max-width: 650px;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         h1 {
-            color: #667eea;
-            font-size: 2.5em;
-            margin-bottom: 30px;
+            color: #4A5F8F;
+            font-size: 2.8em;
+            margin-bottom: 25px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
 
         p {
-            color: #666;
+            color: #5a6b7d;
             font-size: 1.1em;
-            margin-bottom: 40px;
-            line-height: 1.6;
+            margin-bottom: 50px;
+            line-height: 1.8;
+            letter-spacing: 0.3px;
         }
 
         a {
             display: inline-block;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 42px;
+            background: linear-gradient(135deg, #8B9DC3 0%, #7B8DB8 100%);
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 1.1em;
-            font-weight: bold;
+            border-radius: 8px;
+            font-size: 1.05em;
+            font-weight: 500;
             transition: all 0.3s ease;
             border: none;
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(139, 157, 195, 0.25);
         }
 
         a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 157, 195, 0.4), 0 0 20px rgba(139, 157, 195, 0.2);
+        }
+
+        a:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
         }
 
         .button-group {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 16px;
             align-items: center;
-            margin-top: 20px;
+            margin-top: 40px;
         }
 
         .btn {
             display: inline-block;
-            padding: 15px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 28px;
+            background: linear-gradient(135deg, #8B9DC3 0%, #7B8DB8 100%);
             color: #fff;
             text-decoration: none;
             border-radius: 8px;
-            font-size: 1.1em;
-            font-weight: bold;
+            font-size: 1.05em;
+            font-weight: 500;
             width: 100%;
             max-width: 320px;
             text-align: center;
             transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(139, 157, 195, 0.25);
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(139, 157, 195, 0.4), 0 0 20px rgba(139, 157, 195, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(-1px) scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
         }
 
         .emoji {
@@ -99,10 +161,11 @@
 <body>
     <div class="container">
         <h1>排序算法教程</h1>
-        <p>歡迎來到排序算法的學習平台！點擊下方按鈕直接前往報告。</p>
+        <p>歡迎來到排序算法的學習平台！點擊下方按鈕前往報告。</p>
         <div class="button-group">
-            <a class="btn" href="bubble_sort.html">🔄 直達氣泡排序報告</a>
-            <a class="btn" href="selection.html">🟩 直達選擇排序報告</a>
+            <a class="btn" href="bubble_sort.html">🔄 氣泡排序法</a>
+            <a class="btn" href="selection.html">🟩 選擇排序法</a>
+            <a class="btn" href="insertion.html">📍 插入排序法</a>
         </div>
     </div>
 </body>
