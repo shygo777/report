@@ -11,6 +11,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            overflow: auto;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(-45deg, #F5A5A5, #E8B4D4, #B8D8E8, #B8E8D8);
@@ -20,7 +24,7 @@
             padding: 20px;
             color: #333;
             position: relative;
-            overflow: hidden;
+            overflow: auto;
         }
 
         body::before {
@@ -602,6 +606,10 @@ function selectionSortWithTrace(arr) {
                     <div class="controls">
                         <button onclick="generateArray()">生成新陣列</button>
                         <button onclick="startSort()">開始排序</button>
+                        <button onclick="pauseSort()">暫停</button>
+                        <button onclick="resumeSort()">繼續</button>
+                        <button onclick="previousStep()">回上一步</button>
+                        <button onclick="nextStep()">跳下一步</button>
                         <button onclick="resetVisualization()">重置</button>
                     </div>
                     <div style="display: flex; justify-content: center; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
@@ -701,6 +709,10 @@ function selectionSortWithTrace(arr) {
         let isSorting = false;
         let comparisons = 0;
         let swaps = 0;
+        let isPaused = false;
+        let steps = [];
+        let currentStep = 0;
+        let resumeCallback = null;
 
         // 生成隨機陣列
         function generateArray() {
@@ -711,10 +723,12 @@ function selectionSortWithTrace(arr) {
                 array.push(Math.floor(Math.random() * 100) + 1);
             }
             resetVisualization();
+            steps = [array.slice()];
+            currentStep = 0;
         }
 
         // 渲染陣列柱狀圖
-        function renderArray(colorIndices = [], color = '') {
+        function renderArray(colorIndices = [], color = '', record = false) {
             const container = document.getElementById('arrayContainer');
             container.innerHTML = '';
             
@@ -734,11 +748,22 @@ function selectionSortWithTrace(arr) {
                 bar.textContent = value;
                 container.appendChild(bar);
             });
+
+            if (record) {
+                steps.push(array.slice());
+                currentStep = steps.length - 1;
+            }
         }
 
         // 延遲函數
         function sleep(ms) {
-            return new Promise(resolve => setTimeout(resolve, ms));
+            return new Promise((resolve) => {
+                if (isPaused) {
+                    resumeCallback = resolve;
+                } else {
+                    setTimeout(resolve, ms);
+                }
+            });
         }
 
         // 獲取延遲時間
@@ -787,6 +812,7 @@ function selectionSortWithTrace(arr) {
                     let temp = array[i];
                     array[i] = array[minIndex];
                     array[minIndex] = temp;
+                    steps.push(array.slice());
 
                     swaps++;
                 }
@@ -817,9 +843,42 @@ function selectionSortWithTrace(arr) {
             comparisons = 0;
             swaps = 0;
             isSorting = false;
+            isPaused = false;
+            resumeCallback = null;
             document.getElementById('status').textContent = '準備就緒';
             document.getElementById('stats').textContent = '';
             renderArray();
+            steps = [array.slice()];
+            currentStep = 0;
+        }
+
+        function pauseSort() {
+            isPaused = true;
+        }
+
+        function resumeSort() {
+            isPaused = false;
+            if (resumeCallback) {
+                const cb = resumeCallback;
+                resumeCallback = null;
+                cb();
+            }
+        }
+
+        function previousStep() {
+            if (currentStep > 0) {
+                currentStep--;
+                array = steps[currentStep].slice();
+                renderArray([], '', false);
+            }
+        }
+
+        function nextStep() {
+            if (currentStep < steps.length - 1) {
+                currentStep++;
+                array = steps[currentStep].slice();
+                renderArray([], '', false);
+            }
         }
 
         // 速度滑塊事件
