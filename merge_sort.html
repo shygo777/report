@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合併排序法 - Merge Sort</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(-45deg, #F5A5A5, #E8B4D4, #B8D8E8, #B8E8D8);
+            background-size: 400% 400%;
+            animation: gradient 15s ease infinite;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px),
+                radial-gradient(circle, rgba(255,255,255,0.15) 2px, transparent 2px);
+            background-size: 50px 50px, 80px 80px;
+            background-position: 0 0, 25px 25px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(255,255,255,.05) 25%, rgba(255,255,255,.05) 26%, transparent 27%, transparent 74%, rgba(255,255,255,.05) 75%, rgba(255,255,255,.05) 76%, transparent 77%, transparent);
+            background-size: 60px 60px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #8B9DC3 0%, #7B8DB8 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.6em;
+            margin-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .header p {
+            font-size: 1.05em;
+            opacity: 0.95;
+            letter-spacing: 0.3px;
+        }
+
+        .header .nav-links {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .header a {
+            background: white;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .header a:hover {
+            transform: scale(1.05);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .content {
+            padding: 50px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #4A5F8F;
+            font-size: 1.9em;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #8B9DC3;
+            padding-bottom: 12px;
+            font-weight: 600;
+            letter-spacing: -0.3px;
+        }
+
+        .section h3 {
+            color: #764ba2;
+            font-size: 1.3em;
+            margin-top: 20px;
+            margin-bottom: 15px;
+        }
+
+        .principle {
+            background-color: #f0f4ff;
+            padding: 20px;
+            border-left: 5px solid #667eea;
+            border-radius: 5px;
+            line-height: 1.8;
+            font-size: 1em;
+        }
+
+        .process {
+            background-color: #fff3cd;
+            padding: 20px;
+            border-left: 5px solid #ffc107;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .process ol {
+            margin-left: 20px;
+            line-height: 1.8;
+        }
+
+        .process li {
+            margin-bottom: 10px;
+        }
+
+        .complexity {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .complexity-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            border: 2px solid #667eea;
+        }
+
+        .complexity-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .complexity-card p {
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 20px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.6;
+            margin: 15px 0;
+        }
+
+        .code-block code {
+            white-space: pre;
+        }
+
+        .visualization {
+            background-color: #f0f4ff;
+            padding: 30px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .array-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 5px;
+            height: 250px;
+            margin: 30px 0;
+        }
+
+        .array-bar {
+            width: 30px;
+            background: linear-gradient(to top, #667eea, #764ba2);
+            border-radius: 5px 5px 0 0;
+            transition: all 0.3s ease;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+            padding-bottom: 5px;
+        }
+
+        .array-bar.sorted {
+            background: linear-gradient(to top, #28a745, #20c997);
+        }
+
+        .array-bar.comparing {
+            background: linear-gradient(to top, #ffc107, #fd7e14);
+        }
+
+        .array-bar.swapping {
+            background: linear-gradient(to top, #dc3545, #c82333);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        button {
+            padding: 11px 22px;
+            font-size: 0.95em;
+            background: linear-gradient(135deg, #8B9DC3 0%, #7B8DB8 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(139, 157, 195, 0.25);
+            font-weight: 500;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            transition: left 0.5s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
+        }
+
+        button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 20px rgba(139, 157, 195, 0.4), 0 0 15px rgba(139, 157, 195, 0.2);
+        }
+
+        button:active {
+            transform: translateY(0) scale(0.98);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .info {
+            background-color: #e7f3ff;
+            padding: 15px;
+            border-left: 5px solid #2196F3;
+            border-radius: 5px;
+            margin: 15px 0;
+            font-size: 0.95em;
+        }
+
+        .example-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        .example-table th,
+        .example-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .example-table th {
+            background-color: #667eea;
+            color: white;
+        }
+
+        .example-table tr:hover {
+            background-color: #f5f5f5;
+        }
+
+        .footer {
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .array-bar {
+                width: 20px;
+            }
+
+            .complexity {
+                grid-template-columns: 1fr;
+            }
+
+            .header .nav-links {
+                flex-direction: column;
+            }
+
+            .header a {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔀 合併排序法</h1>
+            <p>Merge Sort - 深入理解與可視化</p>
+            <div class="nav-links">
+                <a href="index.html">主頁</a>
+                <a href="bubble_sort.html">氣泡排序</a>
+                <a href="heap_sort.html">堆積排序</a>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- 原理部分 -->
+            <div class="section">
+                <h2>📚 原理說明</h2>
+                <div class="principle">
+                    <p><strong>合併排序法（Merge Sort）</strong>是一種分治演算法，將輸入分成兩個半部分，對它們遞迴排序，然後合併已排序的兩個半部分。</p>
+                    <br>
+                    <p><strong>核心概念：</strong></p>
+                    <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
+                        <li>分治策略：將數組不斷分割成更小的部分</li>
+                        <li>遞迴排序：對每個子數組進行遞迴排序</li>
+                        <li>合併過程：將兩個已排序的數組合併成一個有序數組</li>
+                        <li>時間複雜度始終為 O(n log n)</li>
+                        <li>穩定排序：相等元素的相對位置不變</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 過程部分 -->
+            <div class="section">
+                <h2>⚙️ 排序過程</h2>
+                
+                <h3>演算法步驟：</h3>
+                <div class="process">
+                    <ol>
+                        <li><strong>分割：</strong>將陣列從中點分成兩個子陣列</li>
+                        <li><strong>遞迴排序：</strong>對左半部分遞迴調用合併排序</li>
+                        <li><strong>遞迴排序：</strong>對右半部分遞迴調用合併排序</li>
+                        <li><strong>基底情況：</strong>當陣列大小為 1 時，它已經是有序的</li>
+                        <li><strong>合併：</strong>將兩個已排序的子陣列合併成一個大的有序陣列</li>
+                    </ol>
+                </div>
+
+                <h3>圖示示例：</h3>
+                <div class="info">
+                    <p><strong>初始陣列：</strong> [38, 27, 43, 3, 9, 82, 10]</p>
+                    <p><strong>分割過程：</strong></p>
+                    <p style="font-family: 'Courier New', monospace; background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px;">
+                        [38, 27, 43, 3, 9, 82, 10]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                        [38, 27, 43]&nbsp;&nbsp;&nbsp;&nbsp;[3, 9, 82, 10]<br>
+                        &nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+                        [38] [27, 43]&nbsp;&nbsp;&nbsp;&nbsp;[3, 9] [82, 10]<br>
+                    </p>
+                    <p><strong>合併過程：</strong></p>
+                    <table class="example-table">
+                        <thead>
+                            <tr>
+                                <th>步驟</th>
+                                <th>操作</th>
+                                <th>結果</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>1</td>
+                                <td>合併 [27] 和 [43]</td>
+                                <td>[27, 43]</td>
+                            </tr>
+                            <tr>
+                                <td>2</td>
+                                <td>合併 [38] 和 [27, 43]</td>
+                                <td>[27, 38, 43]</td>
+                            </tr>
+                            <tr>
+                                <td>3</td>
+                                <td>合併 [3, 9] 和 [10, 82]</td>
+                                <td>[3, 9, 10, 82]</td>
+                            </tr>
+                            <tr>
+                                <td>4</td>
+                                <td>合併 [27, 38, 43] 和 [3, 9, 10, 82]</td>
+                                <td>[3, 9, 10, 27, 38, 43, 82]</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 複雜度分析 -->
+            <div class="section">
+                <h2>📊 時間與空間複雜度</h2>
+                <div class="complexity">
+                    <div class="complexity-card">
+                        <h4>時間複雜度</h4>
+                        <p><strong>最好情況：</strong> O(n log n)</p>
+                        <p style="font-size: 0.85em; color: #666;">（任何輸入）</p>
+                        <br>
+                        <p><strong>平均情況：</strong> O(n log n)</p>
+                        <p style="font-size: 0.85em; color: #666;">（隨機陣列）</p>
+                        <br>
+                        <p><strong>最壞情況：</strong> O(n log n)</p>
+                        <p style="font-size: 0.85em; color: #666;">（任何情況）</p>
+                    </div>
+                    <div class="complexity-card">
+                        <h4>空間複雜度</h4>
+                        <p><strong>輔助空間：</strong> O(n)</p>
+                        <p style="font-size: 0.85em; color: #666;">（需要額外空間合併）</p>
+                        <br>
+                        <p><strong>原地排序：</strong> ✗ 否</p>
+                        <p style="font-size: 0.85em; color: #666;">（需要額外的臨時陣列）</p>
+                        <br>
+                        <p><strong>穩定性：</strong> ✓ 穩定</p>
+                        <p style="font-size: 0.85em; color: #666;">（相等元素相對位置不變）</p>
+                    </div>
+                    <div class="complexity-card">
+                        <h4>性能評價</h4>
+                        <p><strong>優點：</strong></p>
+                        <ul style="font-size: 0.9em; margin-left: 15px; margin-top: 8px;">
+                            <li>✓ 時間複雜度穩定</li>
+                            <li>✓ 穩定排序</li>
+                            <li>✓ 適合大數據</li>
+                        </ul>
+                        <p style="margin-top: 12px;"><strong>缺點：</strong></p>
+                        <ul style="font-size: 0.9em; margin-left: 15px; margin-top: 8px;">
+                            <li>✗ 需要 O(n) 額外空間</li>
+                            <li>✗ 不是原地排序</li>
+                            <li>✗ 對小數組開銷大</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 代碼實現 -->
+            <div class="section">
+                <h2>💻 代碼實現</h2>
+                
+                <h3>完整版本：</h3>
+                <div class="code-block">
+                    <code>function mergeSort(arr) {
+    // 基底情況：陣列大小為 1 或 0
+    if (arr.length <= 1) return arr;
+    
+    // 分割陣列
+    const mid = Math.floor(arr.length / 2);
+    const left = arr.slice(0, mid);
+    const right = arr.slice(mid);
+    
+    // 遞迴排序並合併
+    return merge(mergeSort(left), mergeSort(right));
+}
+
+function merge(left, right) {
+    const result = [];
+    let i = 0, j = 0;
+    
+    // 比較並合併兩個已排序的陣列
+    while (i < left.length && j < right.length) {
+        if (left[i] <= right[j]) {
+            result.push(left[i++]);
+        } else {
+            result.push(right[j++]);
+        }
+    }
+    
+    // 添加剩餘元素
+    result.push(...left.slice(i));
+    result.push(...right.slice(j));
+    
+    return result;
+}</code>
+                </div>
+
+                <h3>使用示例：</h3>
+                <div class="code-block">
+                    <code>// 使用示例
+let numbers = [64, 34, 25, 12, 22, 11, 90];
+console.log("原始陣列:", numbers);
+
+let sorted = mergeSort([...numbers]);
+console.log("排序後:", sorted);
+// 輸出: [11, 12, 22, 25, 34, 64, 90]</code>
+                </div>
+            </div>
+
+            <!-- 互動可視化 -->
+            <div class="section">
+                <h2>🎨 互動可視化演示</h2>
+                <div class="visualization">
+                    <h3 style="margin-bottom: 20px; color: #333;">按下按鈕開始排序演示</h3>
+                    <div class="controls">
+                        <button onclick="generateArray()">生成新陣列</button>
+                        <button onclick="startSort()">開始排序</button>
+                        <button onclick="resetVisualization()">重置</button>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 10px; margin: 15px 0; flex-wrap: wrap;">
+                        <div style="background: #f8f9fa; padding: 10px 15px; border-radius: 5px;">
+                            <span style="color: #666;">速度：</span>
+                            <input type="range" id="speedSlider" min="10" max="500" value="100" style="width: 150px;">
+                            <span id="speedValue">100ms</span>
+                        </div>
+                    </div>
+                    <div class="array-container" id="arrayContainer"></div>
+                    <div style="color: #666; margin-top: 20px;">
+                        <p id="status">準備就緒</p>
+                        <p id="stats" style="font-size: 0.9em; margin-top: 10px;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 應用場景 -->
+            <div class="section">
+                <h2>🔍 應用場景與對比</h2>
+                <div class="info">
+                    <h3 style="color: #2196F3; margin-bottom: 15px;">何時使用合併排序：</h3>
+                    <ul style="margin-left: 20px; line-height: 1.8;">
+                        <li>✓ 需要穩定排序 - 相等元素順序保持</li>
+                        <li>✓ 大規模數據 - 時間複雜度有保障</li>
+                        <li>✓ 外部排序 - 數據無法全部加載到內存</li>
+                        <li>✓ 並行處理 - 易於並行化</li>
+                    </ul>
+                </div>
+                <div class="info">
+                    <h3 style="color: #2196F3; margin-bottom: 15px;">與其他排序算法對比：</h3>
+                    <table class="example-table">
+                        <thead>
+                            <tr>
+                                <th>算法</th>
+                                <th>平均時間複雜度</th>
+                                <th>最壞情況</th>
+                                <th>空間複雜度</th>
+                                <th>穩定性</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>氣泡排序</td>
+                                <td>O(n²)</td>
+                                <td>O(n²)</td>
+                                <td>O(1)</td>
+                                <td>穩定</td>
+                            </tr>
+                            <tr>
+                                <td>選擇排序</td>
+                                <td>O(n²)</td>
+                                <td>O(n²)</td>
+                                <td>O(1)</td>
+                                <td>不穩定</td>
+                            </tr>
+                            <tr>
+                                <td>插入排序</td>
+                                <td>O(n²)</td>
+                                <td>O(n²)</td>
+                                <td>O(1)</td>
+                                <td>穩定</td>
+                            </tr>
+                            <tr>
+                                <td>堆積排序</td>
+                                <td>O(n log n)</td>
+                                <td>O(n log n)</td>
+                                <td>O(1)</td>
+                                <td>不穩定</td>
+                            </tr>
+                            <tr>
+                                <td><strong>合併排序</strong></td>
+                                <td><strong>O(n log n)</strong></td>
+                                <td><strong>O(n log n)</strong></td>
+                                <td><strong>O(n)</strong></td>
+                                <td><strong>穩定</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 合併排序法完整教程 | 製作於 2026年3月</p>
+        </div>
+    </div>
+
+    <script>
+        let array = [];
+        let isSorting = false;
+        let comparisons = 0;
+        let swaps = 0;
+
+        function generateArray() {
+            if (isSorting) return;
+            array = [];
+            const arraySize = 20;
+            for (let i = 0; i < arraySize; i++) {
+                array.push(Math.floor(Math.random() * 100) + 1);
+            }
+            resetVisualization();
+        }
+
+        function renderArray(highlightIndices = [], color = '') {
+            const container = document.getElementById('arrayContainer');
+            container.innerHTML = '';
+            
+            const maxValue = Math.max(...array);
+            
+            array.forEach((value, index) => {
+                const bar = document.createElement('div');
+                bar.className = 'array-bar';
+                
+                if (highlightIndices.includes(index) && color) {
+                    bar.classList.add(color);
+                } else {
+                    bar.classList.add('sorted');
+                }
+                
+                bar.style.height = (value / maxValue * 100) + '%';
+                bar.textContent = value;
+                container.appendChild(bar);
+            });
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        function getDelay() {
+            return 510 - document.getElementById('speedSlider').value;
+        }
+
+        async function mergeSort(start, end) {
+            if (start >= end) return;
+            
+            const mid = Math.floor((start + end) / 2);
+            
+            // 遞迴排序左半部分
+            await mergeSort(start, mid);
+            
+            // 遞迴排序右半部分
+            await mergeSort(mid + 1, end);
+            
+            // 合併
+            await merge(start, mid, end);
+        }
+
+        async function merge(start, mid, end) {
+            const left = array.slice(start, mid + 1);
+            const right = array.slice(mid + 1, end + 1);
+            
+            let i = 0, j = 0, k = start;
+            
+            while (i < left.length && j < right.length) {
+                renderArray([start + i + j], 'comparing');
+                document.getElementById('status').textContent = `正在合併...`;
+                document.getElementById('stats').textContent = `比較次數: ${comparisons} | 交換次數: ${swaps}`;
+                comparisons++;
+                await sleep(getDelay());
+                
+                if (left[i] <= right[j]) {
+                    array[k++] = left[i++];
+                } else {
+                    array[k++] = right[j++];
+                }
+                swaps++;
+            }
+            
+            while (i < left.length) {
+                array[k++] = left[i++];
+                swaps++;
+            }
+            
+            while (j < right.length) {
+                array[k++] = right[j++];
+                swaps++;
+            }
+        }
+
+        async function startSort() {
+            if (array.length === 0 || isSorting) return;
+            isSorting = true;
+            comparisons = 0;
+            swaps = 0;
+            
+            await mergeSort(0, array.length - 1);
+            
+            document.getElementById('status').textContent = '✓ 排序完成！';
+            document.getElementById('stats').textContent = `總比較次數: ${comparisons} | 總交換次數: ${swaps}`;
+            renderArray();
+            isSorting = false;
+        }
+
+        function resetVisualization() {
+            comparisons = 0;
+            swaps = 0;
+            isSorting = false;
+            document.getElementById('status').textContent = '準備就緒';
+            document.getElementById('stats').textContent = '';
+            renderArray();
+        }
+
+        document.getElementById('speedSlider').addEventListener('input', function() {
+            const delay = 510 - this.value;
+            document.getElementById('speedValue').textContent = delay + 'ms';
+        });
+
+        generateArray();
+    </script>
+</body>
+</html>
